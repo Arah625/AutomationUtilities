@@ -87,4 +87,65 @@ public class WaitForFirstElement {
     public boolean waitForVisibilityOfFirstElement(FluentWait<WebDriver> fluentWait, WebElement... webElements) {
         return waitForVisibilityOfFirstElement(fluentWait, Arrays.asList(webElements));
     }
+
+    /**
+     * Waits for any one of the given web elements to become invisible within the web page.
+     * This method iterates through a list of web elements and checks their invisibility,
+     * returning true as soon as the first invisible element is found. It's useful for conditions
+     * where the invisibility of any one element out of a set allows the test to proceed.
+     *
+     * @param fluentWait      The {@link FluentWait} instance, customized with timeout and polling settings.
+     * @param webElementsList A list of {@link WebElement} objects to be checked for invisibility.
+     * @return True if any one of the elements becomes invisible, false otherwise.
+     *
+     * <p>Example usage:</p>
+     * <pre>{@code
+     * List<WebElement> options = Arrays.asList(option1, option2, option3);
+     * boolean isInvisible = WaitForFirstElement.waitForInvisibilityOfFirstElement(fluidWait, options);
+     * }</pre>
+     */
+    public boolean waitForInvisibilityOfFirstElement(FluentWait<WebDriver> fluentWait, List<WebElement> webElementsList) {
+        return fluentWait.until(driver -> {
+            for (WebElement element : webElementsList) {
+                try {
+                    if (element == null || !element.isDisplayed()) {
+                        LOGGER.info("Element is invisible: {}", element);
+                        return true;
+                    }
+                } catch (NoSuchElementException ignored) {
+                    LOGGER.info("Element not found, considered as invisible: {}", element);
+                    return true;
+                }
+            }
+            return false;
+        });
+    }
+
+    /**
+     * Waits for the invisibility of at least one element from the specified elements. This version of the method
+     * utilizes varargs for easier inline specification of elements to check for invisibility. It's particularly
+     * useful when you have a small, finite set of elements and you want the test to proceed as soon as any one of
+     * these elements becomes invisible on the page. This could be useful in scenarios where multiple outcomes are
+     * possible and the disappearance of any specific element indicates the test can move forward.
+     *
+     * @param fluentWait  The {@link FluentWait} configured with specific timeout and polling interval, adapting
+     *                    the wait strategy to the dynamic nature of web elements' invisibility.
+     * @param webElements Varargs array of {@link WebElement} instances to check for invisibility. This flexibility
+     *                    allows for direct passing of multiple elements without needing a list.
+     * @return True if any one of the provided elements becomes invisible within the wait time defined in fluentWait;
+     * false if none of the elements become invisible within this period.
+     *
+     * <p>Example usage in a test case:</p>
+     * <pre>{@code
+     * boolean isAnyElementInvisible = WaitForFirstElement.waitForInvisibilityOfFirstElement(
+     *     WebDriverSetup.getInstance().getFluentWait(), submitButton, cancelButton, errorMessage);
+     * assertTrue(isAnyElementInvisible, "Expected at least one element to be invisible but all remained visible.");
+     * }</pre>
+     * This method is a versatile tool in handling conditional flows within a page, where the invisibility
+     * of different elements could lead to different paths in the test execution.
+     */
+    public boolean waitForInvisibilityOfFirstElement(FluentWait<WebDriver> fluentWait, WebElement... webElements) {
+        return waitForInvisibilityOfFirstElement(fluentWait, Arrays.asList(webElements));
+    }
+
 }

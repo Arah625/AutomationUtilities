@@ -25,7 +25,7 @@ public class ElementFinder {
      * Constructor for ElementFinder.
      *
      * @param driver the WebDriver instance to be used for finding elements.
-     * @param wait the WebDriverWait instance to be used for waiting for elements.
+     * @param wait   the WebDriverWait instance to be used for waiting for elements.
      */
     public ElementFinder(WebDriver driver, WebDriverWait wait) {
         this.driver = driver;
@@ -53,7 +53,6 @@ public class ElementFinder {
         WebDriverWait customWait = new WebDriverWait(driver, waitTime);
         return customWait.until(ExpectedConditions.presenceOfElementLocated(locator));
     }
-
 
     /**
      * Immediately finds and returns a single element located by the given locator.

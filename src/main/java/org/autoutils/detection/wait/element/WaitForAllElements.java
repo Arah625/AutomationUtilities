@@ -31,57 +31,67 @@ public class WaitForAllElements {
     public WaitForAllElements(WebDriver webDriver) {
         this.webDriver = webDriver;
     }
+
     /**
-     * Waits for all elements in a given list to become visible at the same time. Each element's visibility is checked
-     * at every polling interval within the total wait time specified.
-     * This method is crucial for scenarios where multiple
-     * elements, such as password hints that appear one after another, need to be confirmed visible before proceeding.
+     * Waits for all elements in a given list to become visible at the same time.
+     *
+     * <p>This method polls all elements in the provided list at regular intervals, as defined by the {@link FluentWait} instance.
+     * The method ensures that all elements are visible simultaneously during the same polling interval within the specified timeout period.
+     * If any element is not visible during the polling interval, the method will continue checking until either all elements are visible
+     * at the same time or the timeout is reached.</p>
+     *
+     * <p>Key points:</p>
+     * <ul>
+     *     <li><b>Simultaneous Visibility:</b> All elements must be visible at the same polling interval for the method to return {@code true}.</li>
+     *     <li><b>Logging on Failure:</b> If not all elements become visible simultaneously, the method logs which elements were not visible.</li>
+     * </ul>
+     *
+     * <p>If all elements become visible at the same time within the timeout period, the method returns {@code true}.
+     * If any element fails to become visible at the same time as the others, the method returns {@code false}.</p>
      *
      * @param fluentWait      The {@link FluentWait} instance specifying the wait conditions.
-     * @param webElementsList The list of {@link WebElement} to check for simultaneous visibility.
-     * @return True if all specified elements are visible within the wait period, false if at least one is not.
-     * <p>
-     * Usage example within a page object method:
+     * @param webElementsList The list of {@link WebElement} to check for visibility.
+     * @return True if all specified elements become visible at the same time within the wait period, false if at least one does not.
+     *
+     * <p><b>Usage Example:</b></p>
      * <pre>{@code
-     * public boolean arePasswordHintsVisible() {
+     * public boolean arePasswordHintsVisibleSimultaneously() {
      *     List<WebElement> passwordHints = Arrays.asList(hint1, hint2, hint3);
-     *     return WaitForAllElements.waitForVisibilityOfAllElements(WebDriverSetup.getInstance().getFluentWait(),
-     *     passwordHints);
+     *     return elementVisibilityHandler.waitForVisibilityOfAllElements(fluentWait, passwordHints);
      * }
-     * }</pre>
-     * <p>
-     * This can be utilized in tests as follows:
-     * <pre>{@code
-     * Assert.assertTrue(registerPage.arePasswordHintsVisible(), "Password hints are not visible as expected.");
      * }</pre>
      */
     public boolean waitForVisibilityOfAllElements(FluentWait<WebDriver> fluentWait, List<WebElement> webElementsList) {
-        Set<String> notVisibleOrFoundElementsDescriptions = ConcurrentHashMap.newKeySet();
+        Set<String> elementsDescriptions = ConcurrentHashMap.newKeySet();
 
-        boolean allElementsVisible = fluentWait.until(driver -> {
-            AtomicBoolean allVisible = new AtomicBoolean(true);
+        boolean allElementsVisibleAtSameTime = fluentWait.until(driver -> {
+            boolean allVisible = true;
 
-            webElementsList.forEach(element -> {
+            // Iterate over all elements to ensure they are visible at the same time
+            for (WebElement element : webElementsList) {
                 try {
-                    if (element.isDisplayed()) {
-                        notVisibleOrFoundElementsDescriptions.remove(element.toString());
-                    } else {
-                        notVisibleOrFoundElementsDescriptions.add(element.toString());
-                        allVisible.set(false);
+                    if (!element.isDisplayed()) {
+                        elementsDescriptions.add(element.toString());
+                        allVisible = false;
                     }
                 } catch (NoSuchElementException e) {
-                    notVisibleOrFoundElementsDescriptions.add(element.toString());
-                    allVisible.set(false);
+                    elementsDescriptions.add(element.toString());
+                    allVisible = false;
                 }
-            });
+            }
 
-            return allVisible.get();
+            // If all elements are visible, clear the list of descriptions
+            if (allVisible) {
+                elementsDescriptions.clear();
+            }
+
+            return allVisible;
         });
 
-        if (!allElementsVisible) {
-            LOGGER.error("Timeout reached. Not all elements were visible before the timeout.");
-            notVisibleOrFoundElementsDescriptions.forEach(description ->
-                    LOGGER.error("Element not visible or not found: {}", description));
+        if (!allElementsVisibleAtSameTime) {
+            LOGGER.error("Timeout reached. Not all elements were visible at the same time.");
+            elementsDescriptions.forEach(description ->
+                    LOGGER.error("Element not visible or not found at the same time: {}", description));
             return false;
         }
 
@@ -89,27 +99,33 @@ public class WaitForAllElements {
     }
 
     /**
-     * Waits for all given web elements to become visible at the same time. This method is a convenient overload,
-     * allowing for direct input of multiple {@link WebElement} instances without needing to create a list explicitly.
-     * This method is crucial for scenarios where multiple elements,
-     * such as password hints that appear one after another, need to be confirmed visible before proceeding.
+     * Waits for all specified web elements to become visible at the same time within the provided timeout period.
      *
-     * @param fluentWait  The {@link FluentWait} instance specifying the wait conditions,
-     *                    such as timeout and polling frequency.
-     * @param webElements Varargs array of {@link WebElement} instances to be checked for visibility.
-     * @return True if all specified elements become visible within the wait period, false otherwise.
-     * <p>
-     * Usage example within a page object method for a set of known elements:
+     * <p>This method checks all specified elements at each polling interval, ensuring that all elements are visible
+     * simultaneously during the same polling interval. The method continues to check all elements together until
+     * they are all visible or the timeout is reached.</p>
+     *
+     * <p><b>Key Points:</b></p>
+     * <ul>
+     *     <li><b>Simultaneous Visibility Check:</b> All elements must be visible at the same time in one polling interval.
+     *     If any element is not visible during the same polling interval, the method will continue to check until the timeout.</li>
+     *     <li><b>No Premature Removal:</b> Elements are not removed from the checking list once visible. The method ensures
+     *     that all elements remain visible simultaneously.</li>
+     * </ul>
+     *
+     * <p>If all elements are visible at the same time within the timeout period, the method returns {@code true}.
+     * If any element fails to become visible during the same polling interval before the timeout, the method returns {@code false}
+     * and logs the elements that were not visible.</p>
+     *
+     * @param fluentWait  The {@link FluentWait} instance specifying the wait conditions, including timeout and polling intervals.
+     * @param webElements Varargs array of {@link WebElement} instances to be checked for simultaneous visibility.
+     * @return True if all specified elements become visible simultaneously within the wait period, false otherwise.
+     *
+     * <p><b>Usage Example:</b></p>
      * <pre>{@code
      * public boolean areNavigationButtonsVisible() {
-     *     return WaitForAllElements.waitForAllElementsVisibility(WebDriverSetup.getInstance().getFluentWait(),
-     *     nextButton, backButton, homeButton);
+     *     return elementVisibilityHandler.waitForVisibilityOfAllElements(fluentWait, nextButton, backButton, homeButton);
      * }
-     * }</pre>
-     * <p>
-     * This method can be utilized in tests to verify the visibility of a predefined group of elements:
-     * <pre>{@code
-     * Assert.assertTrue(page.areNavigationButtonsVisible(), "Navigation buttons are not visible as expected.");
      * }</pre>
      */
     public boolean waitForVisibilityOfAllElements(FluentWait<WebDriver> fluentWait, WebElement... webElements) {
@@ -117,33 +133,34 @@ public class WaitForAllElements {
     }
 
     /**
-     * Iteratively waits for each element in the provided list to become visible on the webpage,
-     * checking at regular intervals within the total specified wait time.
-     * The method continuously loops through the list, checking for the visibility of each element.
-     * Once an element is found to be visible, it is removed from the list. This loop repeats at each polling
-     * interval until either the list is empty (indicating all elements have been found and are visible) or the timeout
-     * is reached. It is particularly useful for scenarios where elements are expected to appear
-     * and disappear sequentially, such as dynamic form validation messages or tutorial steps
-     * that are displayed one after another.
+     * Iteratively waits for each element in the provided list to become visible at least once.
      *
-     * @param fluentWait      The {@link FluentWait} instance specifying the wait conditions,
-     *                        including timeout and polling frequency.
-     * @param webElementsList A list of {@link WebElement} instances to be checked for visibility. The checking
-     *                        is performed in sequence and at each polling interval.
-     * @return True if all elements in the list become visible within the specified wait period,
-     * false if any element remains invisible by the time the timeout is reached.
-     * <p>
-     * Usage example within a page object method for sequentially appearing elements:
+     * <p>This method checks each element in the list sequentially. At each polling interval, it checks whether
+     * the first unchecked element is visible. If the element is visible, it is removed from the list, and the method
+     * moves on to the next element in the next polling interval. This continues until either all elements are confirmed
+     * to have been visible at least once or the timeout period is reached.</p>
+     *
+     * <p>Key points:</p>
+     * <ul>
+     *     <li><b>Sequential Visibility Checks:</b> The method checks one element per polling interval. Once an element is confirmed visible, it is removed from the list and no longer checked.</li>
+     *     <li><b>No Simultaneous Requirement:</b> The elements do not need to be visible at the same time. The method only requires that each element has been visible at least once during the polling intervals.</li>
+     *     <li><b>Graceful Handling:</b> If an element is not found during a check (e.g., due to NoSuchElementException), it is assumed the element was not visible during that polling interval.</li>
+     * </ul>
+     *
+     * <p>If all elements are confirmed visible at least once within the timeout period, the method returns {@code true}.
+     * If any element fails to become visible at least once before the timeout, the method returns {@code false} and logs
+     * the elements that were not confirmed visible.</p>
+     *
+     * @param fluentWait      The {@link FluentWait} instance specifying the wait conditions.
+     * @param webElementsList The list of {@link WebElement} instances to be checked for visibility.
+     * @return True if all elements in the list are confirmed to have been visible at least once within the specified wait period, false if any element is not confirmed visible by the time the timeout is reached.
+     *
+     * <p><b>Usage Example:</b></p>
      * <pre>{@code
      * public boolean areSequentialHintsVisible() {
      *     List<WebElement> hints = Arrays.asList(hint1, hint2, hint3);
-     *     return WaitForAllElements.waitForEachElementVisibility(WebDriverSetup.getInstance().getFluentWait(), hints);
+     *     return elementVisibilityHandler.waitForEachElementToBeVisibleOnce(fluentWait, hints);
      * }
-     * }</pre>
-     * <p>
-     * This method can be effectively utilized in tests to verify that sequential elements are visible as expected:
-     * <pre>{@code
-     * Assert.assertTrue(tutorialPage.areSequentialHintsVisible(), "Sequential hints are not visible as expected.");
      * }</pre>
      */
     public boolean waitForEachElementToBeVisibleOnce(FluentWait<WebDriver> fluentWait, List<WebElement> webElementsList) {
@@ -173,44 +190,224 @@ public class WaitForAllElements {
         return true;
     }
 
-
     /**
-     * Iteratively checks for the visibility of each provided {@link WebElement},
-     * utilizing varargs for input convenience. This method applies a dynamic polling
-     * mechanism within the specified total wait time, continuously checking each
-     * element's visibility at regular intervals. It's designed for scenarios where
-     * elements may become visible one after another, making it ideal for dynamic
-     * content loading or interactive tutorials.
-     * <p>
-     * Each polling interval checks all specified elements, removing any that are
-     * confirmed visible from the list of elements yet to be checked. This process
-     * continues until either all specified elements are confirmed visible or the
-     * total wait time elapses.
-     * <p>
-     * Utilizing varargs simplifies the specification of elements to be checked,
-     * making this method particularly useful for validating the visibility of a
-     * known set of elements without the need to construct a list.
+     * Iteratively waits for each specified web element to become visible at least once, using varargs for input convenience.
      *
-     * @param fluentWait  The {@link FluentWait} instance specifying the wait
-     *                    conditions, including timeout and polling intervals.
-     * @param webElements Varargs of {@link WebElement} to be checked for visibility
-     *                    sequentially.
-     * @return True if each specified element becomes visible within the total wait
-     * period, false otherwise.
-     * <p>
-     * Example usage in a page object method:
+     * <p>This method checks the visibility of each element sequentially at each polling interval within the specified
+     * total wait time. As soon as an element is confirmed visible, it is removed from the list of elements yet to be checked.
+     * The method continues until all elements have been confirmed visible at least once, or the timeout is reached.</p>
+     *
+     * <p>Key points:</p>
+     * <ul>
+     *     <li><b>Sequential Visibility Checks:</b> The method checks each element one by one at each polling interval.
+     *     Once an element is confirmed to be visible, it is removed from the list and no longer checked.</li>
+     *     <li><b>No Simultaneous Requirement:</b> The elements do not need to be visible at the same time. The method only requires that each element is visible at least once during the polling intervals.</li>
+     *     <li><b>Graceful Handling:</b> If an element is not found during a check (e.g., due to NoSuchElementException),
+     *     it is assumed that the element was not visible during that polling interval.</li>
+     * </ul>
+     *
+     * <p>If all elements are confirmed visible at least once within the timeout period, the method returns {@code true}.
+     * If any element fails to become visible at least once before the timeout, the method returns {@code false} and logs
+     * the elements that were not confirmed visible.</p>
+     *
+     * @param fluentWait  The {@link FluentWait} instance specifying the wait conditions.
+     * @param webElements Varargs array of {@link WebElement} to be checked for visibility sequentially.
+     * @return True if each specified element becomes visible at least once within the total wait period, false otherwise.
+     *
+     * <p><b>Usage Example:</b></p>
      * <pre>{@code
      * public boolean areInteractiveTutorialStepsVisible() {
-     *     return WaitForAllElements.waitForEachElementToBeVisibleOnce(
-     *     WebDriverSetup.getInstance().getFluentWait(), step1, step2, step3);
+     *     return elementVisibilityHandler.waitForEachElementToBeVisibleOnce(fluentWait, step1, step2, step3);
      * }
      * }</pre>
-     * <p>
-     * This method facilitates the handling of dynamic UI elements that appear
-     * sequentially, enhancing test accuracy and reliability.
      */
     public boolean waitForEachElementToBeVisibleOnce(FluentWait<WebDriver> fluentWait,
-                                                            WebElement... webElements) {
+                                                     WebElement... webElements) {
         return waitForEachElementToBeVisibleOnce(fluentWait, Arrays.asList(webElements));
+    }
+
+    /**
+     * Waits for all elements in a given list to become invisible simultaneously.
+     *
+     * <p>This method polls each element in the provided list at regular intervals, as defined by the {@link FluentWait} instance.
+     * At each polling interval, it checks whether all remaining elements are invisible. The method continues checking until either
+     * all elements are confirmed invisible at the same time or the specified timeout period is reached.</p>
+     *
+     * <p>Key points:</p>
+     * <ul>
+     *     <li><b>Concurrent Invisibility Checks:</b> The method checks all remaining elements at each polling interval. If any element is still visible, the method keeps checking until all are confirmed invisible.</li>
+     *     <li><b>Simultaneous Invisibility Required:</b> All elements must be confirmed invisible at the same time for the method to return {@code true}.</li>
+     * </ul>
+     *
+     * <p>If all elements become invisible within the timeout period, the method returns {@code true}.
+     * If any element fails to become invisible before the timeout, the method returns {@code false} and logs the elements that were not confirmed invisible.</p>
+     *
+     * @param fluentWait      The {@link FluentWait} instance specifying the wait conditions.
+     * @param webElementsList The list of {@link WebElement} to check for invisibility.
+     * @return True if all specified elements become invisible simultaneously within the wait period, false if at least one does not.
+     *
+     * <p><b>Usage Example:</b></p>
+     * <pre>{@code
+     * public boolean arePasswordHintsGone() {
+     *     List<WebElement> passwordHints = Arrays.asList(hint1, hint2, hint3);
+     *     return elementInvisibilityHandler.waitForInvisibilityOfAllElements(fluentWait, passwordHints);
+     * }
+     * }</pre>
+     */
+    public boolean waitForInvisibilityOfAllElements(FluentWait<WebDriver> fluentWait, List<WebElement> webElementsList) {
+        Set<String> notInvisibleOrFoundElementsDescriptions = ConcurrentHashMap.newKeySet();
+
+        boolean allElementsInvisible = fluentWait.until(driver -> {
+            AtomicBoolean allInvisible = new AtomicBoolean(true);
+
+            webElementsList.forEach(element -> {
+                try {
+                    if (element.isDisplayed()) {
+                        notInvisibleOrFoundElementsDescriptions.add(element.toString());
+                        allInvisible.set(false);
+                    } else {
+                        notInvisibleOrFoundElementsDescriptions.remove(element.toString());
+                    }
+                } catch (NoSuchElementException e) {
+                    // Element is not present, so it's considered invisible.
+                    notInvisibleOrFoundElementsDescriptions.remove(element.toString());
+                }
+            });
+
+            return allInvisible.get();
+        });
+
+        if (!allElementsInvisible) {
+            LOGGER.error("Timeout reached. Not all elements were invisible before the timeout.");
+            notInvisibleOrFoundElementsDescriptions.forEach(description ->
+                    LOGGER.error("Element not invisible or still present: {}", description));
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Waits for all specified web elements to become invisible simultaneously.
+     *
+     * <p>This method is a convenient overload, allowing for direct input of multiple {@link WebElement} instances without needing to create a list explicitly.
+     * It checks all remaining elements at each polling interval, and the method continues until all elements are invisible simultaneously or the timeout is reached.</p>
+     *
+     * <p>Key points:</p>
+     * <ul>
+     *     <li><b>Concurrent Invisibility Checks:</b> The method checks all remaining elements at each polling interval. If any element is still visible, the method keeps checking until all are confirmed invisible.</li>
+     *     <li><b>Simultaneous Invisibility Required:</b> All elements must be confirmed invisible at the same time for the method to return {@code true}.</li>
+     * </ul>
+     *
+     * <p>If all elements become invisible within the timeout, the method returns {@code true}.
+     * If any element fails to become invisible before the timeout, the method returns {@code false} and logs the elements that were not confirmed invisible.</p>
+     *
+     * @param fluentWait  The {@link FluentWait} instance specifying the wait conditions.
+     * @param webElements Varargs array of {@link WebElement} instances to be checked for invisibility.
+     * @return True if all specified elements become invisible simultaneously within the wait period, false otherwise.
+     *
+     * <p><b>Usage Example:</b></p>
+     * <pre>{@code
+     * public boolean areNavigationButtonsGone() {
+     *     return elementInvisibilityHandler.waitForInvisibilityOfAllElements(fluentWait, nextButton, backButton, homeButton);
+     * }
+     * }</pre>
+     */
+    public boolean waitForInvisibilityOfAllElements(FluentWait<WebDriver> fluentWait, WebElement... webElements) {
+        return waitForInvisibilityOfAllElements(fluentWait, Arrays.asList(webElements));
+    }
+
+    /**
+     * Iteratively waits for each element in the provided list to become invisible at least once.
+     *
+     * <p>This method checks each element in the list sequentially. At each polling interval, it checks whether
+     * the first unchecked element is invisible. If the element is invisible, it is removed from the list, and the method
+     * proceeds to the next element in the next polling interval. This continues until either all elements are confirmed
+     * to have been invisible at least once or the timeout period is reached.</p>
+     *
+     * <p>Key points:</p>
+     * <ul>
+     *     <li><b>Sequential Invisibility Checks:</b> The method checks one element per polling interval. Once an element is confirmed invisible, it is removed from the list and no longer checked.</li>
+     *     <li><b>No Simultaneous Requirement:</b> The elements do not need to be invisible at the same time. The method only requires that each element has been invisible at least once during the polling intervals.</li>
+     *     <li><b>Graceful Handling:</b> If an element is not found during a check (e.g., due to NoSuchElementException), it is assumed the element is already invisible.</li>
+     * </ul>
+     *
+     * <p>If all elements are confirmed invisible at least once within the timeout period, the method returns {@code true}.
+     * If any element fails to become invisible at least once before the timeout, the method returns {@code false} and logs
+     * the elements that were not confirmed invisible.</p>
+     *
+     * @param fluentWait      The {@link FluentWait} instance specifying the wait conditions.
+     * @param webElementsList The list of {@link WebElement} instances to be checked for invisibility.
+     * @return True if all elements in the list are confirmed to have been invisible at least once within the specified wait period, false if any element is not confirmed invisible by the time the timeout is reached.
+     *
+     * <p><b>Usage Example:</b></p>
+     * <pre>{@code
+     * public boolean areSequentialHintsGone() {
+     *     List<WebElement> hints = Arrays.asList(hint1, hint2, hint3);
+     *     return elementInvisibilityHandler.waitForEachElementToBeInvisibleOnce(fluentWait, hints);
+     * }
+     * }</pre>
+     */
+    public boolean waitForEachElementToBeInvisibleOnce(FluentWait<WebDriver> fluentWait, List<WebElement> webElementsList) {
+        List<WebElement> remainingElements = new ArrayList<>(webElementsList);
+
+        boolean allElementsInvisible = fluentWait.until(driver -> {
+            Iterator<WebElement> iterator = remainingElements.iterator();
+            while (iterator.hasNext()) {
+                WebElement webElement = iterator.next();
+                try {
+                    if (!webElement.isDisplayed()) {
+                        LOGGER.info("Element found and now invisible: {}", webElement);
+                        iterator.remove();
+                    }
+                } catch (NoSuchElementException noSuchElementException) {
+                    // Element not found, so it's considered invisible
+                    iterator.remove();
+                }
+            }
+            return remainingElements.isEmpty();
+        });
+
+        if (!allElementsInvisible) {
+            LOGGER.error("Timeout reached. The following elements were not confirmed invisible:");
+            remainingElements.forEach(webElement -> LOGGER.error("Element still visible or not found: {}", webElement));
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Iteratively waits for each specified web element to become invisible at least once, using varargs for input convenience.
+     *
+     * <p>This method checks the invisibility of each element sequentially at each polling interval within the specified
+     * total wait time. As soon as an element is confirmed invisible, it is removed from the list of elements yet to be checked.
+     * The method continues until all elements have been confirmed invisible at least once, or the timeout is reached.</p>
+     *
+     * <p>Key points:</p>
+     * <ul>
+     *     <li><b>Sequential Invisibility Checks:</b> The method checks each element one by one at each polling interval.
+     *     Once an element is confirmed to be invisible, it is removed from the list and no longer checked.</li>
+     *     <li><b>No Simultaneous Requirement:</b> The elements do not need to be invisible at the same time. The method only requires that each element is invisible at least once during the polling intervals.</li>
+     *     <li><b>Graceful Handling:</b> If an element is not found during a check (e.g., due to NoSuchElementException),
+     *     it is assumed that the element is already invisible.</li>
+     * </ul>
+     *
+     * <p>If all elements are confirmed invisible at least once within the timeout period, the method returns {@code true}.
+     * If any element fails to become invisible at least once before the timeout, the method returns {@code false} and logs
+     * the elements that were not confirmed invisible.</p>
+     *
+     * @param fluentWait  The {@link FluentWait} instance specifying the wait conditions.
+     * @param webElements Varargs array of {@link WebElement} to be checked for invisibility sequentially.
+     * @return True if each specified element becomes invisible at least once within the total wait period, false otherwise.
+     *
+     * <p><b>Usage Example:</b></p>
+     * <pre>{@code
+     * public boolean areInteractiveTutorialStepsGone() {
+     *     return elementInvisibilityHandler.waitForEachElementToBeInvisibleOnce(fluentWait, step1, step2, step3);
+     * }
+     * }</pre>
+     */
+    public boolean waitForEachElementToBeInvisibleOnce(FluentWait<WebDriver> fluentWait, WebElement... webElements) {
+        return waitForEachElementToBeInvisibleOnce(fluentWait, Arrays.asList(webElements));
     }
 }
