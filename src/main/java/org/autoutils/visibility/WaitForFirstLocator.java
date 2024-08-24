@@ -1,4 +1,4 @@
-package org.autoutils.detection.wait.locator;
+package org.autoutils.visibility;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.TimeoutException;
@@ -156,10 +156,10 @@ class WaitForFirstLocator {
      * useful when you have a small set of locators and you want the test to proceed as soon as any one of
      * the identified elements becomes invisible on the page.
      *
-     * @param fluentWait  The {@link FluentWait} configured with specific timeout and polling interval, adapting
-     *                    the wait strategy to the dynamic nature of web elements' invisibility.
-     * @param locators Varargs array of {@link By} instances to check for invisibility. This flexibility
-     *                    allows for direct passing of multiple locators without needing a list.
+     * @param fluentWait The {@link FluentWait} configured with specific timeout and polling interval, adapting
+     *                   the wait strategy to the dynamic nature of web elements' invisibility.
+     * @param locators   Varargs array of {@link By} instances to check for invisibility. This flexibility
+     *                   allows for direct passing of multiple locators without needing a list.
      * @return True if any one of the elements identified by the provided locators becomes invisible within the wait time defined in fluentWait;
      * false if none of the elements become invisible within this period.
      * <p>

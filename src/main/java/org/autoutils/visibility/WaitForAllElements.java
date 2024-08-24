@@ -1,4 +1,4 @@
-package org.autoutils.detection.wait.element;
+package org.autoutils.visibility;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -222,7 +222,7 @@ class WaitForAllElements {
      * }</pre>
      */
     boolean waitForEachElementToBeVisibleOnce(FluentWait<WebDriver> fluentWait,
-                                                     WebElement... webElements) {
+                                              WebElement... webElements) {
         return waitForEachElementToBeVisibleOnce(fluentWait, Arrays.asList(webElements));
     }
 

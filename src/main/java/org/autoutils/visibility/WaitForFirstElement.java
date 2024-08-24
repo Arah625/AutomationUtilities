@@ -1,4 +1,4 @@
-package org.autoutils.detection.wait.element;
+package org.autoutils.visibility;
 
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;

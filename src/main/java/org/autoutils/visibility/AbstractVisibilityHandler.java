@@ -1,4 +1,4 @@
-package org.autoutils.detection.wait;
+package org.autoutils.visibility;
 
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
@@ -7,12 +7,13 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 
-public abstract class AbstractWaitFacade {
+abstract class AbstractVisibilityHandler {
+
     protected final WebDriver webDriver;
     protected final WebDriverWait webDriverWait;
     protected final FluentWait<WebDriver> defaultFluentWait;
 
-    protected AbstractWaitFacade(WebDriver webDriver, WebDriverWait webDriverWait, FluentWait<WebDriver> defaultFluentWait) {
+    protected AbstractVisibilityHandler(WebDriver webDriver, WebDriverWait webDriverWait, FluentWait<WebDriver> defaultFluentWait) {
         this.webDriver = webDriver;
         this.webDriverWait = webDriverWait;
         this.defaultFluentWait = defaultFluentWait;
@@ -43,5 +44,4 @@ public abstract class AbstractWaitFacade {
                 .pollingEvery(pollingInterval)
                 .ignoring(NoSuchElementException.class);
     }
-
 }

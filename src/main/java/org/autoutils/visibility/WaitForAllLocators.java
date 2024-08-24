@@ -1,4 +1,4 @@
-package org.autoutils.detection.wait.locator;
+package org.autoutils.visibility;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
@@ -158,7 +158,7 @@ class WaitForAllLocators {
      * }
      * }</pre>
      */
-   boolean waitForEachLocatorToBeVisibleOnce(FluentWait<WebDriver> fluentWait, List<By> locatorsList) {
+    boolean waitForEachLocatorToBeVisibleOnce(FluentWait<WebDriver> fluentWait, List<By> locatorsList) {
         List<By> notVisibleLocators = new ArrayList<>(locatorsList);
 
         boolean allElementsVisible = fluentWait.until(driver -> {
@@ -216,7 +216,7 @@ class WaitForAllLocators {
      * }
      * }</pre>
      */
-   boolean waitForEachLocatorToBeVisibleOnce(FluentWait<WebDriver> fluentWait, By... locators) {
+    boolean waitForEachLocatorToBeVisibleOnce(FluentWait<WebDriver> fluentWait, By... locators) {
         return waitForEachLocatorToBeVisibleOnce(fluentWait, Arrays.asList(locators));
     }
 
@@ -249,7 +249,7 @@ class WaitForAllLocators {
      * }
      * }</pre>
      */
-   boolean waitForInvisibilityOfAllLocators(FluentWait<WebDriver> fluentWait, List<By> locatorsList) {
+    boolean waitForInvisibilityOfAllLocators(FluentWait<WebDriver> fluentWait, List<By> locatorsList) {
         Set<String> notInvisibleOrFoundElementsDescriptions = ConcurrentHashMap.newKeySet();
 
         boolean allElementsInvisibleAtSameTime = fluentWait.until(driver -> {
@@ -352,7 +352,7 @@ class WaitForAllLocators {
      * }
      * }</pre>
      */
-   boolean waitForEachLocatorToBeInvisibleOnce(FluentWait<WebDriver> fluentWait, List<By> locatorsList) {
+    boolean waitForEachLocatorToBeInvisibleOnce(FluentWait<WebDriver> fluentWait, List<By> locatorsList) {
         List<By> remainingLocators = new ArrayList<>(locatorsList);
 
         boolean allElementsInvisible = fluentWait.until(driver -> {
@@ -411,7 +411,7 @@ class WaitForAllLocators {
      * }
      * }</pre>
      */
-   boolean waitForEachLocatorToBeInvisibleOnce(FluentWait<WebDriver> fluentWait, By... locators) {
+    boolean waitForEachLocatorToBeInvisibleOnce(FluentWait<WebDriver> fluentWait, By... locators) {
         return waitForEachLocatorToBeInvisibleOnce(fluentWait, Arrays.asList(locators));
     }
 }
