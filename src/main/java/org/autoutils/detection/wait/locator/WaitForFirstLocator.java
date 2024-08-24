@@ -18,7 +18,7 @@ import java.util.List;
  * after any one of multiple potential elements, identified by their locators,
  * becomes visible—useful for dealing with dynamic content or multiple possible outcomes.
  */
-public class WaitForFirstLocator {
+class WaitForFirstLocator {
 
     private final WebDriver webDriver;
     private static final Logger LOGGER = LoggerFactory.getLogger(WaitForFirstLocator.class);
@@ -48,7 +48,7 @@ public class WaitForFirstLocator {
      * boolean isAnyMessageVisible = WaitForFirstLocator.waitForVisibilityOfFirstLocator(fluidWait, messageLocators);
      * }</pre>
      */
-    public boolean waitForVisibilityOfFirstLocator(FluentWait<WebDriver> fluentWait, List<By> locatorsList) {
+    boolean waitForVisibilityOfFirstLocator(FluentWait<WebDriver> fluentWait, List<By> locatorsList) {
         try {
             return fluentWait.until(driver -> {
                 for (By locator : locatorsList) {
@@ -105,7 +105,7 @@ public class WaitForFirstLocator {
      * This method is a valuable tool for handling dynamic UI elements that appear
      * sequentially, contributing to more precise and reliable tests.
      */
-    public boolean waitForVisibilityOfFirstLocator(FluentWait<WebDriver> fluentWait, By... locators) {
+    boolean waitForVisibilityOfFirstLocator(FluentWait<WebDriver> fluentWait, By... locators) {
         return waitForVisibilityOfFirstLocator(fluentWait, Arrays.asList(locators));
     }
 
@@ -125,7 +125,7 @@ public class WaitForFirstLocator {
      * boolean isAnyMessageInvisible = WaitForFirstLocator.waitForInvisibilityOfFirstLocator(fluidWait, messageLocators);
      * }</pre>
      */
-    public boolean waitForInvisibilityOfFirstLocator(FluentWait<WebDriver> fluentWait, List<By> locatorsList) {
+    boolean waitForInvisibilityOfFirstLocator(FluentWait<WebDriver> fluentWait, List<By> locatorsList) {
         try {
             return fluentWait.until(driver -> {
                 for (By locator : locatorsList) {
@@ -172,7 +172,7 @@ public class WaitForFirstLocator {
      * This method is a versatile tool in handling conditional flows within a page, where the invisibility
      * of different elements could lead to different paths in the test execution.
      */
-    public boolean waitForInvisibilityOfFirstLocator(FluentWait<WebDriver> fluentWait, By... locators) {
+    boolean waitForInvisibilityOfFirstLocator(FluentWait<WebDriver> fluentWait, By... locators) {
         return waitForInvisibilityOfFirstLocator(fluentWait, Arrays.asList(locators));
     }
 

@@ -15,7 +15,7 @@ import java.util.List;
  * Use these methods when a test needs to proceed only after any one of several possible elements becomes visible,
  * such as waiting for any one of multiple success messages or buttons that might appear as a result of an action.
  */
-public class WaitForFirstElement {
+class WaitForFirstElement {
 
     private final WebDriver webDriver;
     private static final Logger LOGGER = LoggerFactory.getLogger(WaitForFirstElement.class);
@@ -45,7 +45,7 @@ public class WaitForFirstElement {
      * boolean isVisible = WaitForAnyElement.waitForVisibilityOfAnyElement(fluidWait, options);
      * }</pre>
      */
-    public boolean waitForVisibilityOfFirstElement(FluentWait<WebDriver> fluentWait, List<WebElement> webElementsList) {
+    boolean waitForVisibilityOfFirstElement(FluentWait<WebDriver> fluentWait, List<WebElement> webElementsList) {
         return fluentWait.until(driver -> {
             for (WebElement element : webElementsList) {
                 try {
@@ -84,7 +84,7 @@ public class WaitForFirstElement {
      * This method is a versatile tool in handling conditional flows within a page, where the visibility
      * of different elements could lead to different paths in the test execution.
      */
-    public boolean waitForVisibilityOfFirstElement(FluentWait<WebDriver> fluentWait, WebElement... webElements) {
+    boolean waitForVisibilityOfFirstElement(FluentWait<WebDriver> fluentWait, WebElement... webElements) {
         return waitForVisibilityOfFirstElement(fluentWait, Arrays.asList(webElements));
     }
 
@@ -104,7 +104,7 @@ public class WaitForFirstElement {
      * boolean isInvisible = WaitForFirstElement.waitForInvisibilityOfFirstElement(fluidWait, options);
      * }</pre>
      */
-    public boolean waitForInvisibilityOfFirstElement(FluentWait<WebDriver> fluentWait, List<WebElement> webElementsList) {
+    boolean waitForInvisibilityOfFirstElement(FluentWait<WebDriver> fluentWait, List<WebElement> webElementsList) {
         return fluentWait.until(driver -> {
             for (WebElement element : webElementsList) {
                 try {
@@ -144,7 +144,7 @@ public class WaitForFirstElement {
      * This method is a versatile tool in handling conditional flows within a page, where the invisibility
      * of different elements could lead to different paths in the test execution.
      */
-    public boolean waitForInvisibilityOfFirstElement(FluentWait<WebDriver> fluentWait, WebElement... webElements) {
+    boolean waitForInvisibilityOfFirstElement(FluentWait<WebDriver> fluentWait, WebElement... webElements) {
         return waitForInvisibilityOfFirstElement(fluentWait, Arrays.asList(webElements));
     }
 

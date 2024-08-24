@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Utilizes {@link FluentWait} for customizable wait strategies, including setting timeouts and polling intervals,
  * while providing graceful exception handling capabilities.
  */
-public class WaitForAllLocators {
+class WaitForAllLocators {
 
     private final WebDriver webDriver;
     private static final Logger LOGGER = LoggerFactory.getLogger(WaitForAllLocators.class);
@@ -64,7 +64,7 @@ public class WaitForAllLocators {
      * }
      * }</pre>
      */
-    public boolean waitForVisibilityOfAllLocators(FluentWait<WebDriver> fluentWait, List<By> locatorsList) {
+    boolean waitForVisibilityOfAllLocators(FluentWait<WebDriver> fluentWait, List<By> locatorsList) {
         List<By> remainingLocators = new ArrayList<>(locatorsList);
 
         boolean allVisible = fluentWait.until(driver -> {
@@ -90,7 +90,6 @@ public class WaitForAllLocators {
             remainingLocators.forEach(locator -> LOGGER.error("Element not visible for locator: {}", locator));
             return false;
         }
-
         return true;
     }
 
@@ -124,7 +123,7 @@ public class WaitForAllLocators {
      * }
      * }</pre>
      */
-    public boolean waitForVisibilityOfAllLocators(FluentWait<WebDriver> fluentWait, By... locators) {
+    boolean waitForVisibilityOfAllLocators(FluentWait<WebDriver> fluentWait, By... locators) {
         return waitForVisibilityOfAllLocators(fluentWait, Arrays.asList(locators));
     }
 
@@ -159,7 +158,7 @@ public class WaitForAllLocators {
      * }
      * }</pre>
      */
-    public boolean waitForEachLocatorToBeVisibleOnce(FluentWait<WebDriver> fluentWait, List<By> locatorsList) {
+   boolean waitForEachLocatorToBeVisibleOnce(FluentWait<WebDriver> fluentWait, List<By> locatorsList) {
         List<By> notVisibleLocators = new ArrayList<>(locatorsList);
 
         boolean allElementsVisible = fluentWait.until(driver -> {
@@ -217,7 +216,7 @@ public class WaitForAllLocators {
      * }
      * }</pre>
      */
-    public boolean waitForEachLocatorToBeVisibleOnce(FluentWait<WebDriver> fluentWait, By... locators) {
+   boolean waitForEachLocatorToBeVisibleOnce(FluentWait<WebDriver> fluentWait, By... locators) {
         return waitForEachLocatorToBeVisibleOnce(fluentWait, Arrays.asList(locators));
     }
 
@@ -250,7 +249,7 @@ public class WaitForAllLocators {
      * }
      * }</pre>
      */
-    public boolean waitForInvisibilityOfAllLocators(FluentWait<WebDriver> fluentWait, List<By> locatorsList) {
+   boolean waitForInvisibilityOfAllLocators(FluentWait<WebDriver> fluentWait, List<By> locatorsList) {
         Set<String> notInvisibleOrFoundElementsDescriptions = ConcurrentHashMap.newKeySet();
 
         boolean allElementsInvisibleAtSameTime = fluentWait.until(driver -> {
@@ -318,7 +317,7 @@ public class WaitForAllLocators {
      * }
      * }</pre>
      */
-    public boolean waitForInvisibilityOfAllLocators(FluentWait<WebDriver> fluentWait, By... locators) {
+    boolean waitForInvisibilityOfAllLocators(FluentWait<WebDriver> fluentWait, By... locators) {
         return waitForInvisibilityOfAllLocators(fluentWait, Arrays.asList(locators));
     }
 
@@ -353,7 +352,7 @@ public class WaitForAllLocators {
      * }
      * }</pre>
      */
-    public boolean waitForEachLocatorToBeInvisibleOnce(FluentWait<WebDriver> fluentWait, List<By> locatorsList) {
+   boolean waitForEachLocatorToBeInvisibleOnce(FluentWait<WebDriver> fluentWait, List<By> locatorsList) {
         List<By> remainingLocators = new ArrayList<>(locatorsList);
 
         boolean allElementsInvisible = fluentWait.until(driver -> {
@@ -412,7 +411,7 @@ public class WaitForAllLocators {
      * }
      * }</pre>
      */
-    public boolean waitForEachLocatorToBeInvisibleOnce(FluentWait<WebDriver> fluentWait, By... locators) {
+   boolean waitForEachLocatorToBeInvisibleOnce(FluentWait<WebDriver> fluentWait, By... locators) {
         return waitForEachLocatorToBeInvisibleOnce(fluentWait, Arrays.asList(locators));
     }
 }

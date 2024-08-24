@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Utilizes {@link FluentWait} for customizable wait strategies, including setting timeouts and polling intervals,
  * while providing graceful exception handling capabilities.
  */
-public class WaitForAllElements {
+class WaitForAllElements {
 
     private final WebDriver webDriver;
     private static final Logger LOGGER = LoggerFactory.getLogger(WaitForAllElements.class);
@@ -61,7 +61,7 @@ public class WaitForAllElements {
      * }
      * }</pre>
      */
-    public boolean waitForVisibilityOfAllElements(FluentWait<WebDriver> fluentWait, List<WebElement> webElementsList) {
+    boolean waitForVisibilityOfAllElements(FluentWait<WebDriver> fluentWait, List<WebElement> webElementsList) {
         Set<String> elementsDescriptions = ConcurrentHashMap.newKeySet();
 
         boolean allElementsVisibleAtSameTime = fluentWait.until(driver -> {
@@ -128,7 +128,7 @@ public class WaitForAllElements {
      * }
      * }</pre>
      */
-    public boolean waitForVisibilityOfAllElements(FluentWait<WebDriver> fluentWait, WebElement... webElements) {
+    boolean waitForVisibilityOfAllElements(FluentWait<WebDriver> fluentWait, WebElement... webElements) {
         return waitForVisibilityOfAllElements(fluentWait, Arrays.asList(webElements));
     }
 
@@ -163,7 +163,7 @@ public class WaitForAllElements {
      * }
      * }</pre>
      */
-    public boolean waitForEachElementToBeVisibleOnce(FluentWait<WebDriver> fluentWait, List<WebElement> webElementsList) {
+    boolean waitForEachElementToBeVisibleOnce(FluentWait<WebDriver> fluentWait, List<WebElement> webElementsList) {
         List<WebElement> remainingElements = new ArrayList<>(webElementsList);
 
         boolean allElementsVisible = fluentWait.until(driver -> {
@@ -221,7 +221,7 @@ public class WaitForAllElements {
      * }
      * }</pre>
      */
-    public boolean waitForEachElementToBeVisibleOnce(FluentWait<WebDriver> fluentWait,
+    boolean waitForEachElementToBeVisibleOnce(FluentWait<WebDriver> fluentWait,
                                                      WebElement... webElements) {
         return waitForEachElementToBeVisibleOnce(fluentWait, Arrays.asList(webElements));
     }
@@ -254,7 +254,7 @@ public class WaitForAllElements {
      * }
      * }</pre>
      */
-    public boolean waitForInvisibilityOfAllElements(FluentWait<WebDriver> fluentWait, List<WebElement> webElementsList) {
+    boolean waitForInvisibilityOfAllElements(FluentWait<WebDriver> fluentWait, List<WebElement> webElementsList) {
         Set<String> notInvisibleOrFoundElementsDescriptions = ConcurrentHashMap.newKeySet();
 
         boolean allElementsInvisible = fluentWait.until(driver -> {
@@ -313,7 +313,7 @@ public class WaitForAllElements {
      * }
      * }</pre>
      */
-    public boolean waitForInvisibilityOfAllElements(FluentWait<WebDriver> fluentWait, WebElement... webElements) {
+    boolean waitForInvisibilityOfAllElements(FluentWait<WebDriver> fluentWait, WebElement... webElements) {
         return waitForInvisibilityOfAllElements(fluentWait, Arrays.asList(webElements));
     }
 
@@ -348,7 +348,7 @@ public class WaitForAllElements {
      * }
      * }</pre>
      */
-    public boolean waitForEachElementToBeInvisibleOnce(FluentWait<WebDriver> fluentWait, List<WebElement> webElementsList) {
+    boolean waitForEachElementToBeInvisibleOnce(FluentWait<WebDriver> fluentWait, List<WebElement> webElementsList) {
         List<WebElement> remainingElements = new ArrayList<>(webElementsList);
 
         boolean allElementsInvisible = fluentWait.until(driver -> {
@@ -407,7 +407,7 @@ public class WaitForAllElements {
      * }
      * }</pre>
      */
-    public boolean waitForEachElementToBeInvisibleOnce(FluentWait<WebDriver> fluentWait, WebElement... webElements) {
+    boolean waitForEachElementToBeInvisibleOnce(FluentWait<WebDriver> fluentWait, WebElement... webElements) {
         return waitForEachElementToBeInvisibleOnce(fluentWait, Arrays.asList(webElements));
     }
 }
