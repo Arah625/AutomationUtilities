@@ -7,12 +7,37 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 
+/**
+ * AbstractVisibilityHandler provides a base class for handling visibility-related operations in Selenium WebDriver.
+ * It encapsulates common functionality such as managing WebDriver instances and creating custom FluentWait instances.
+ * Subclasses can extend this class to implement specific visibility-related behaviors, ensuring consistency and reusability.
+ *
+ * <p><b>Usage:</b></p>
+ * <pre>{@code
+ * public class ElementVisibilityHandler extends AbstractVisibilityHandler {
+ *
+ *     public ElementVisibilityHandler(WebDriver webDriver, WebDriverWait webDriverWait, FluentWait<WebDriver> defaultFluentWait) {
+ *         super(webDriver, webDriverWait, defaultFluentWait);
+ *     }
+ *
+ *     // Custom visibility logic here
+ * }
+ * }</pre>
+ */
 abstract class AbstractVisibilityHandler {
 
     protected final WebDriver webDriver;
     protected final WebDriverWait webDriverWait;
     protected final FluentWait<WebDriver> defaultFluentWait;
 
+    /**
+     * Constructs a new AbstractVisibilityHandler with the provided WebDriver, WebDriverWait, and FluentWait instances.
+     * Subclasses should call this constructor to initialize these common dependencies.
+     *
+     * @param webDriver        The WebDriver instance used for browser interaction.
+     * @param webDriverWait    The WebDriverWait instance used for explicit waits.
+     * @param defaultFluentWait The FluentWait instance used for custom waiting conditions.
+     */
     protected AbstractVisibilityHandler(WebDriver webDriver, WebDriverWait webDriverWait, FluentWait<WebDriver> defaultFluentWait) {
         this.webDriver = webDriver;
         this.webDriverWait = webDriverWait;
