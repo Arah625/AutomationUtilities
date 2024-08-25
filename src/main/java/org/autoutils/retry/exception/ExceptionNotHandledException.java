@@ -1,4 +1,4 @@
-package org.autoutils.retry.exceptions;
+package org.autoutils.retry.exception;
 
 /**
  * Signifies that an anticipated exception was not handled during execution. This class extends

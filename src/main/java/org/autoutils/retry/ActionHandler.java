@@ -1,7 +1,7 @@
 package org.autoutils.retry;
 
-import org.autoutils.retry.exceptions.ExceptionNotHandledException;
-import org.autoutils.retry.exceptions.MaximumRetriesExceededException;
+import org.autoutils.retry.exception.ExceptionNotHandledException;
+import org.autoutils.retry.exception.MaximumRetriesExceededException;
 
 import java.util.Arrays;
 import java.util.function.BooleanSupplier;

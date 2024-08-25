@@ -1,4 +1,4 @@
-package org.autoutils.retry.exceptions;
+package org.autoutils.retry.exception;
 
 /**
  * Represents exceptions that occur when handling other exceptions within the application.

@@ -1,4 +1,4 @@
-package org.autoutils.retry.exceptions;
+package org.autoutils.retry.exception;
 
 /**
  * Signals that an operation has exceeded the allowed number of repetitions. This runtime exception
