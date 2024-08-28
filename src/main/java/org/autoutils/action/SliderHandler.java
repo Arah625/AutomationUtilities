@@ -50,7 +50,7 @@ public class SliderHandler {
      * }</pre>
      *
      * @param sliderThumb The slider thumb {@link WebElement} to be moved.
-     * @param sliderBar      The slider {@link WebElement} representing the entire slider.
+     * @param sliderBar   The slider {@link WebElement} representing the entire slider.
      * @param minValue    The minimum value of the slider's range.
      * @param maxValue    The maximum value of the slider's range.
      */
@@ -109,7 +109,7 @@ public class SliderHandler {
      * }</pre>
      *
      * @param sliderThumb  The slider thumb {@link WebElement} to be moved.
-     * @param sliderBar       The slider {@link WebElement} representing the entire slider.
+     * @param sliderBar    The slider {@link WebElement} representing the entire slider.
      * @param minValue     The minimum value of the slider's range.
      * @param maxValue     The maximum value of the slider's range.
      * @param desiredValue The target value to set the slider to.
@@ -158,9 +158,9 @@ public class SliderHandler {
     /**
      * Calculates a random horizontal offset within the slider's range.
      *
-     * @param sliderBar   The slider {@link WebElement}.
-     * @param minValue The minimum value of the slider's range.
-     * @param maxValue The maximum value of the slider's range.
+     * @param sliderBar The slider {@link WebElement}.
+     * @param minValue  The minimum value of the slider's range.
+     * @param maxValue  The maximum value of the slider's range.
      * @return The calculated horizontal offset in pixels within the slider's range.
      */
     private int calculateRandomHorizontalOffset(WebElement sliderBar, int minValue, int maxValue) {
@@ -171,7 +171,7 @@ public class SliderHandler {
     /**
      * Calculates a horizontal offset for moving the slider to a specific desired value.
      *
-     * @param sliderBar       The slider {@link WebElement}.
+     * @param sliderBar    The slider {@link WebElement}.
      * @param minValue     The minimum value of the slider's range.
      * @param maxValue     The maximum value of the slider's range.
      * @param desiredValue The target value to set the slider to.
@@ -212,9 +212,4 @@ public class SliderHandler {
     private int getMaxValue(WebElement sliderBar) {
         return Integer.parseInt(sliderBar.getAttribute("max"));
     }
-    // TODO: 28.08.2024 Change names of elements: sliderThumb - ok, slider, change to sliderBar - done
-    // TODO: 28.08.2024 Add getting min and max values automatically from sliderBar - done
-    // TODO: 28.08.2024 Add methods that automatically move slider to min value and another to max value - done
-    // TODO: 28.08.2024 Overload methods, so they would accept String values - parse String to int inside - done
-    // TODO: 28.08.2024 Add missing javadocs
 }
