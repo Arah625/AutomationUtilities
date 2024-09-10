@@ -5,16 +5,16 @@ import io.appium.java_client.ios.options.XCUITestOptions;
 
 import java.net.URL;
 
-public class IOSDriverManager implements Driver<IOSDriver> {
+class IOSDriverFactory implements Driver<IOSDriver> {
 
     private IOSDriver iosDriver;
-    private static final IOSDriverManager INSTANCE = new IOSDriverManager();
+    private static final IOSDriverFactory INSTANCE = new IOSDriverFactory();
 
-    private IOSDriverManager() {
+    private IOSDriverFactory() {
         // Private constructor to prevent instantiation
     }
 
-    public static IOSDriverManager getInstance() {
+    public static IOSDriverFactory getInstance() {
         return INSTANCE;
     }
 
@@ -26,7 +26,10 @@ public class IOSDriverManager implements Driver<IOSDriver> {
      * @return The initialized IOSDriver instance.
      */
     public IOSDriver getDriver(XCUITestOptions options, URL appiumServerUrl) {
-        iosDriver = new IOSDriver(appiumServerUrl, options);
+        // Prevent re-initializing the driver if already initialized
+        if (iosDriver == null) {
+            iosDriver = new IOSDriver(appiumServerUrl, options);
+        }
         return iosDriver;
     }
 
@@ -40,6 +43,7 @@ public class IOSDriverManager implements Driver<IOSDriver> {
         if (iosDriver != null) {
             iosDriver.close();
             iosDriver = null;
+            System.out.println("IOSDriver session closed.");
         }
     }
 
@@ -48,6 +52,7 @@ public class IOSDriverManager implements Driver<IOSDriver> {
         if (iosDriver != null) {
             iosDriver.quit();
             iosDriver = null;
+            System.out.println("IOSDriver session quit.");
         }
     }
 

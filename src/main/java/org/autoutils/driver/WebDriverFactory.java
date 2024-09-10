@@ -8,7 +8,7 @@ import org.openqa.selenium.edge.EdgeOptions;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.safari.SafariOptions;
 
-public class WebDriverFactory {
+class WebDriverFactory {
 
     /**
      * Get the WebDriver for web browsers (Chrome, Firefox, Edge, Safari).
@@ -60,6 +60,7 @@ public class WebDriverFactory {
 
         // Register the driver for session management
         DriverSessionManager.registerDriver(driver);
+        System.out.println(browser + " driver initialized successfully.");
         return driver;
     }
 }

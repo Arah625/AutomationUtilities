@@ -1,6 +1,6 @@
 package org.autoutils.driver;
 
-public interface Driver<T> {
+interface Driver<T> {
 
     /**
      * Sets the driver instance.

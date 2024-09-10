@@ -5,16 +5,16 @@ import io.appium.java_client.android.options.UiAutomator2Options;
 
 import java.net.URL;
 
-public class AndroidDriverManager implements Driver<AndroidDriver> {
+class AndroidDriverFactory implements Driver<AndroidDriver> {
 
     private AndroidDriver androidDriver;
-    private static final AndroidDriverManager INSTANCE = new AndroidDriverManager();
+    private static final AndroidDriverFactory INSTANCE = new AndroidDriverFactory();
 
-    private AndroidDriverManager() {
+    private AndroidDriverFactory() {
         // Private constructor to prevent instantiation
     }
 
-    public static AndroidDriverManager getInstance() {
+    public static AndroidDriverFactory getInstance() {
         return INSTANCE;
     }
 
@@ -26,7 +26,10 @@ public class AndroidDriverManager implements Driver<AndroidDriver> {
      * @return The initialized AndroidDriver instance.
      */
     public AndroidDriver getDriver(UiAutomator2Options options, URL appiumServerUrl) {
-        androidDriver = new AndroidDriver(appiumServerUrl, options);
+        // Prevent re-initializing the driver if already initialized
+        if (androidDriver == null) {
+            androidDriver = new AndroidDriver(appiumServerUrl, options);
+        }
         return androidDriver;
     }
 
@@ -40,6 +43,7 @@ public class AndroidDriverManager implements Driver<AndroidDriver> {
         if (androidDriver != null) {
             androidDriver.close();
             androidDriver = null;
+            System.out.println("AndroidDriver session closed.");
         }
     }
 
@@ -48,6 +52,7 @@ public class AndroidDriverManager implements Driver<AndroidDriver> {
         if (androidDriver != null) {
             androidDriver.quit();
             androidDriver = null;
+            System.out.println("AndroidDriver session quit.");
         }
     }
 

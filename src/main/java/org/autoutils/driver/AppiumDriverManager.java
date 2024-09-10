@@ -15,6 +15,15 @@ public class AppiumDriverManager implements Driver<AppiumDriver> {
         return INSTANCE;
     }
 
+    /**
+     * Initializes the AppiumDriver with specific options and the Appium server URL.
+     * This method should be overridden by platform-specific managers like AndroidDriverManager or IOSDriverManager.
+     */
+    public AppiumDriver getDriver() {
+        ensureDriverInitialized();
+        return appiumDriver;
+    }
+
     @Override
     public void setDriver(AppiumDriver driver) {
         this.appiumDriver = driver;
@@ -25,6 +34,7 @@ public class AppiumDriverManager implements Driver<AppiumDriver> {
         if (appiumDriver != null) {
             appiumDriver.close();
             appiumDriver = null;
+            System.out.println("AppiumDriver session closed.");
         }
     }
 
@@ -33,6 +43,7 @@ public class AppiumDriverManager implements Driver<AppiumDriver> {
         if (appiumDriver != null) {
             appiumDriver.quit();
             appiumDriver = null;
+            System.out.println("AppiumDriver session quit.");
         }
     }
 

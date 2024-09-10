@@ -2,13 +2,13 @@ package org.autoutils.driver;
 
 import org.openqa.selenium.WebDriver;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class DriverSessionManager {
 
-    // List to hold all active driver instances
-    private static List<WebDriver> activeDrivers = new ArrayList<>();
+    // Thread-safe list to hold all active driver instances
+    private static List<WebDriver> activeDrivers = new CopyOnWriteArrayList<>();
 
     /**
      * Add a driver to the list of active drivers.
@@ -16,7 +16,9 @@ public class DriverSessionManager {
      * @param driver The driver instance to be added.
      */
     public static void registerDriver(WebDriver driver) {
-        activeDrivers.add(driver);
+        if (driver != null) {
+            activeDrivers.add(driver);
+        }
     }
 
     /**
@@ -26,6 +28,7 @@ public class DriverSessionManager {
         for (WebDriver driver : activeDrivers) {
             if (driver != null) {
                 driver.quit();
+                System.out.println("Driver session quit.");
             }
         }
         // Clear the list after quitting all drivers
