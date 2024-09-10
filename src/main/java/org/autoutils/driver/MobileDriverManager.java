@@ -5,6 +5,8 @@ import io.appium.java_client.android.options.UiAutomator2Options;
 import io.appium.java_client.ios.options.XCUITestOptions;
 import org.autoutils.driver.exception.InvalidMobilePlatformException;
 import org.autoutils.driver.exception.UnknownPlatformException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URL;
 
@@ -13,6 +15,7 @@ import java.net.URL;
  * (Android or iOS) based on the provided platform or configuration.
  */
 public class MobileDriverManager {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MobileDriverManager.class);
 
     /**
      * Get mobile driver for Android using UiAutomator2Options.
@@ -24,7 +27,7 @@ public class MobileDriverManager {
     public static AppiumDriver getAndroidDriver(UiAutomator2Options options, URL appiumServerUrl) {
         AppiumDriver driver = AndroidDriverFactory.getInstance().getDriver(options, appiumServerUrl);
         DriverSessionManager.registerDriver(driver);
-        System.out.println("Android driver initialized successfully.");
+        LOGGER.debug("Android driver initialized successfully.");
         return driver;
     }
 
@@ -38,7 +41,7 @@ public class MobileDriverManager {
     public static AppiumDriver getIOSDriver(XCUITestOptions options, URL appiumServerUrl) {
         AppiumDriver driver = IOSDriverFactory.getInstance().getDriver(options, appiumServerUrl);
         DriverSessionManager.registerDriver(driver);
-        System.out.println("iOS driver initialized successfully.");
+        LOGGER.debug("iOS driver initialized successfully.");
         return driver;
     }
 

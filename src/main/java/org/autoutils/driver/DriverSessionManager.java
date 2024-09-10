@@ -1,14 +1,17 @@
 package org.autoutils.driver;
 
 import org.openqa.selenium.WebDriver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class DriverSessionManager {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DriverSessionManager.class);
 
     // Thread-safe list to hold all active driver instances
-    private static List<WebDriver> activeDrivers = new CopyOnWriteArrayList<>();
+    private static final List<WebDriver> activeDrivers = new CopyOnWriteArrayList<>();
 
     /**
      * Add a driver to the list of active drivers.
@@ -28,7 +31,7 @@ public class DriverSessionManager {
         for (WebDriver driver : activeDrivers) {
             if (driver != null) {
                 driver.quit();
-                System.out.println("Driver session quit.");
+                LOGGER.debug("{} Driver session quit.", driver);
             }
         }
         // Clear the list after quitting all drivers

@@ -2,10 +2,13 @@ package org.autoutils.driver;
 
 import io.appium.java_client.ios.IOSDriver;
 import io.appium.java_client.ios.options.XCUITestOptions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URL;
 
 class IOSDriverFactory implements Driver<IOSDriver> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(IOSDriverFactory.class);
 
     private IOSDriver iosDriver;
     private static final IOSDriverFactory INSTANCE = new IOSDriverFactory();
@@ -43,7 +46,7 @@ class IOSDriverFactory implements Driver<IOSDriver> {
         if (iosDriver != null) {
             iosDriver.close();
             iosDriver = null;
-            System.out.println("IOSDriver session closed.");
+            LOGGER.debug("IOSDriver session closed.");
         }
     }
 
@@ -52,7 +55,7 @@ class IOSDriverFactory implements Driver<IOSDriver> {
         if (iosDriver != null) {
             iosDriver.quit();
             iosDriver = null;
-            System.out.println("IOSDriver session quit.");
+            LOGGER.debug("IOSDriver session quit.");
         }
     }
 

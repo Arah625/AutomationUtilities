@@ -1,8 +1,11 @@
 package org.autoutils.driver;
 
 import io.appium.java_client.AppiumDriver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AppiumDriverManager implements Driver<AppiumDriver> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AppiumDriverManager.class);
 
     private AppiumDriver appiumDriver;
     private static final AppiumDriverManager INSTANCE = new AppiumDriverManager();
@@ -34,7 +37,7 @@ public class AppiumDriverManager implements Driver<AppiumDriver> {
         if (appiumDriver != null) {
             appiumDriver.close();
             appiumDriver = null;
-            System.out.println("AppiumDriver session closed.");
+            LOGGER.debug("AppiumDriver session closed.");
         }
     }
 
@@ -43,7 +46,7 @@ public class AppiumDriverManager implements Driver<AppiumDriver> {
         if (appiumDriver != null) {
             appiumDriver.quit();
             appiumDriver = null;
-            System.out.println("AppiumDriver session quit.");
+            LOGGER.debug("AppiumDriver session quit.");
         }
     }
 

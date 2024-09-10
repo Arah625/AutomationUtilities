@@ -2,10 +2,13 @@ package org.autoutils.driver;
 
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.options.UiAutomator2Options;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URL;
 
 class AndroidDriverFactory implements Driver<AndroidDriver> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AndroidDriverFactory.class);
 
     private AndroidDriver androidDriver;
     private static final AndroidDriverFactory INSTANCE = new AndroidDriverFactory();
@@ -43,7 +46,7 @@ class AndroidDriverFactory implements Driver<AndroidDriver> {
         if (androidDriver != null) {
             androidDriver.close();
             androidDriver = null;
-            System.out.println("AndroidDriver session closed.");
+            LOGGER.debug("AndroidDriver session closed.");
         }
     }
 
@@ -52,7 +55,7 @@ class AndroidDriverFactory implements Driver<AndroidDriver> {
         if (androidDriver != null) {
             androidDriver.quit();
             androidDriver = null;
-            System.out.println("AndroidDriver session quit.");
+            LOGGER.debug("AndroidDriver session quit.");
         }
     }
 
