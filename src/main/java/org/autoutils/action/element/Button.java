@@ -328,7 +328,7 @@ public class Button implements ElementState {
     public boolean isClassPresent(By locator, String className) {
         return isClassPresent(locator, className, 3);  // Default retry to 3
     }
-    
+
     /**
      * Checks whether a specific class is present in the {@code class} attribute of a {@link WebElement}, with retries.
      * <p>
