@@ -75,4 +75,7 @@ public class VisibilityHandler {
     public ElementInvisibility elementInvisibility() {
         return elementInvisibility;
     }
+    // TODO: 14.09.2024 unify the return .this in all methods
+    // TODO: 14.09.2024 convert WebDriver, WebDriverWait, FluentWait into constructor local variables
+    // TODO: 14.09.2024 in project should be used mostly RemoteWebDriver - for classes that are used in mobile and web tests, so they would apply APpium/iOS/Android/WebDriver instead of one type (WebDriver)
 }

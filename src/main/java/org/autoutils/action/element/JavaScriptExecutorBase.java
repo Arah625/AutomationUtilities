@@ -18,7 +18,7 @@ public abstract class JavaScriptExecutorBase {
      * Executes the given JavaScript script with the provided arguments.
      *
      * @param script the JavaScript code to execute
-     * @param args the arguments to pass to the script
+     * @param args   the arguments to pass to the script
      * @return the result of the script execution
      */
     protected Object executeScript(String script, Object... args) {

@@ -170,6 +170,7 @@ public class AppiumServerManager {
                 new String[]{GeneralServerFlag.ALLOW_INSECURE.getArgument(), "chromedriver_autodownload"},
                 new String[]{GeneralServerFlag.LOG_TIMESTAMP.getArgument()},
                 new String[]{GeneralServerFlag.LOG_LEVEL.getArgument(), "debug"},
+                new String[]{GeneralServerFlag.LOG_NO_COLORS.getArgument()},
                 new String[]{GeneralServerFlag.LOCAL_TIMEZONE.getArgument()}
         );
     }

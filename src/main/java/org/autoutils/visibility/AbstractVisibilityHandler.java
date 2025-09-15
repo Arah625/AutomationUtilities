@@ -69,4 +69,5 @@ abstract class AbstractVisibilityHandler {
                 .pollingEvery(pollingInterval)
                 .ignoring(NoSuchElementException.class);
     }
+    // TODO: 14.09.2024 replace with WaitManager
 }

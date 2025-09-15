@@ -3,6 +3,7 @@ package org.autoutils.retry;
 import org.autoutils.retry.exception.ExceptionNotHandledException;
 import org.autoutils.retry.exception.MaximumRetriesExceededException;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
@@ -74,6 +75,54 @@ public class ActionHandler {
     }
 
     /**
+     * Retries a supplier action up to a specified number of times with a delay between retries if it fails due to certain exceptions.
+     *
+     * <p>This method is useful for handling operations that may intermittently fail in web automation scenarios,
+     * and adds an interval between retries.</p>
+     *
+     * <pre>{@code
+     * @FindBy(id = "retryable-action-element")
+     * WebElement retryableActionElement;
+     *
+     * public T performActionWithRetry() {
+     *     return ActionHandler.retryAction(() -> retryableActionElement.getText(), 3, Duration.ofSeconds(2), NoSuchElementException.class, StaleElementReferenceException.class);
+     * }
+     * }</pre>
+     *
+     * @param action             The supplier action to be executed, which returns a value of type T.
+     * @param retryCount         The number of retry attempts before giving up.
+     * @param interval           The {@link Duration} between retry attempts.
+     * @param exceptionsToHandle The exceptions that, if thrown, will trigger a retry of the action.
+     * @param <T>                The type of the result returned by the action.
+     * @return The result of the action if it succeeds within the retry attempts.
+     * @throws ExceptionNotHandledException    If an exception is thrown that is not specified in exceptionsToHandle.
+     * @throws MaximumRetriesExceededException If the number of retry attempts is exceeded without successful execution.
+     */
+    @SafeVarargs
+    public static <T> T retryAction(Supplier<T> action, int retryCount, Duration interval, Class<? extends Exception>... exceptionsToHandle) {
+        int attempt = 0;
+        while (true) {
+            try {
+                return action.get();
+            } catch (Exception e) {
+                if (!isExceptionHandled(e, exceptionsToHandle)) {
+                    throw new ExceptionNotHandledException("Unhandled exception occurred", e);
+                }
+                if (++attempt > retryCount) {
+                    throw new MaximumRetriesExceededException("Exceeded max retry attempts", e);
+                }
+                // Sleep for the specified interval before retrying
+                try {
+                    Thread.sleep(interval);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt(); // Restore the interrupted status
+                    throw new RuntimeException("Thread was interrupted during sleep", ie);
+                }
+            }
+        }
+    }
+
+    /**
      * Retries a void action up to the default number of times if it fails due to specified exceptions.
      *
      * <p>This method is particularly useful for actions that do not return a value but may fail transiently,
@@ -101,6 +150,34 @@ public class ActionHandler {
     }
 
     /**
+     * Retries a void action up to the default number of times with a delay between retries if it fails due to specified exceptions.
+     *
+     * <p>This method is useful for actions that do not return a value but may fail transiently,
+     * and adds an interval between retries.</p>
+     *
+     * <pre>{@code
+     * @FindBy(id = "submit-button")
+     * WebElement submitButton;
+     *
+     * public void clickSubmitButtonWithRetry() {
+     *     ActionHandler.retryVoidAction(() -> submitButton.click(), Duration.ofSeconds(2), ElementClickInterceptedException.class, StaleElementReferenceException.class);
+     * }
+     * }</pre>
+     *
+     * @param action             The void action to execute, encapsulated in a {@link Runnable}.
+     * @param interval           The {@link Duration} between retry attempts.
+     * @param exceptionsToHandle The exceptions that, if thrown, will trigger a retry of the action. Only the exceptions
+     *                           specified here will be handled; others will result in an immediate failure.
+     */
+    @SafeVarargs
+    public static void retryVoidAction(Runnable action, Duration interval, Class<? extends Exception>... exceptionsToHandle) {
+        retryAction(() -> {
+            action.run();
+            return null;
+        }, DEFAULT_RETRY_COUNT, interval, exceptionsToHandle);
+    }
+
+    /**
      * Retries a void action up to a given number of times if it fails due to specified exceptions.
      *
      * <pre>{@code
@@ -125,6 +202,31 @@ public class ActionHandler {
     }
 
     /**
+     * Retries a void action up to a given number of times with a delay between retries if it fails due to specified exceptions.
+     *
+     * <pre>{@code
+     * @FindBy(id = "submit-button")
+     * WebElement submitButton;
+     *
+     * public void clickSubmitButtonWithRetry() {
+     *     ActionHandler.retryVoidAction(() -> submitButton.click(), 3, Duration.ofSeconds(2), ElementClickInterceptedException.class, StaleElementReferenceException.class);
+     * }
+     * }</pre>
+     *
+     * @param action             The void action to execute.
+     * @param retryCount         The number of times to retry the action.
+     * @param interval           The {@link Duration} between retry attempts.
+     * @param exceptionsToHandle The exceptions upon which to retry the action.
+     */
+    @SafeVarargs
+    public static void retryVoidAction(Runnable action, int retryCount, Duration interval, Class<? extends Exception>... exceptionsToHandle) {
+        retryAction(() -> {
+            action.run();
+            return null;
+        }, retryCount, interval, exceptionsToHandle);
+    }
+
+    /**
      * Retries a BooleanSupplier action up to the default retry count if it fails due to specified exceptions.
      *
      * <pre>{@code
@@ -143,6 +245,30 @@ public class ActionHandler {
     @SafeVarargs
     public static boolean retryBooleanAction(BooleanSupplier action, Class<? extends Exception>... exceptionsToHandle) {
         return retryAction(action::getAsBoolean, DEFAULT_RETRY_COUNT, exceptionsToHandle);
+    }
+
+    /**
+     * Retries a BooleanSupplier action with a delay between retries if it fails due to specified exceptions.
+     *
+     * <p>This method adds an interval between retries, and is useful for handling intermittent failures in BooleanSupplier actions.</p>
+     *
+     * <pre>{@code
+     * @FindBy(id = "checkbox-id")
+     * WebElement checkbox;
+     *
+     * public boolean isCheckboxSelectedWithRetry() {
+     *     return ActionHandler.retryBooleanAction(() -> checkbox.isSelected(), Duration.ofSeconds(2), NoSuchElementException.class, StaleElementReferenceException.class);
+     * }
+     * }</pre>
+     *
+     * @param action             The BooleanSupplier action to execute.
+     * @param interval           The {@link Duration} between retry attempts.
+     * @param exceptionsToHandle The exceptions that, if thrown, will trigger a retry of the action.
+     * @return The boolean result of the action if it succeeds within the allowed retry attempts.
+     */
+    @SafeVarargs
+    public static boolean retryBooleanAction(BooleanSupplier action, Duration interval, Class<? extends Exception>... exceptionsToHandle) {
+        return retryAction(action::getAsBoolean, DEFAULT_RETRY_COUNT, interval, exceptionsToHandle);
     }
 
     /**
@@ -168,6 +294,29 @@ public class ActionHandler {
     }
 
     /**
+     * Retries a BooleanSupplier action with a specified number of retry attempts and a delay between retries if the action fails due to certain exceptions.
+     *
+     * <pre>{@code
+     * @FindBy(id = "dynamic-element-id")
+     * WebElement dynamicElement;
+     *
+     * public boolean waitForElementVisibilityWithRetry() {
+     *     return ActionHandler.retryBooleanAction(() -> dynamicElement.isDisplayed(), 5, Duration.ofSeconds(2), NoSuchElementException.class, StaleElementReferenceException.class);
+     * }
+     * }</pre>
+     *
+     * @param action             The BooleanSupplier action to execute.
+     * @param retryCount         The number of retry attempts before giving up.
+     * @param interval           The {@link Duration} between retry attempts.
+     * @param exceptionsToHandle The exceptions that, if thrown, will trigger a retry of the action.
+     * @return The boolean result of the action if it succeeds within the specified retry attempts.
+     */
+    @SafeVarargs
+    public static boolean retryBooleanAction(BooleanSupplier action, int retryCount, Duration interval, Class<? extends Exception>... exceptionsToHandle) {
+        return retryAction(action::getAsBoolean, retryCount, interval, exceptionsToHandle);
+    }
+
+    /**
      * Retries an IntSupplier action up to the default retry count if it fails due to specified exceptions.
      *
      * <pre>{@code
@@ -186,6 +335,30 @@ public class ActionHandler {
     @SafeVarargs
     public static int retryIntAction(IntSupplier action, Class<? extends Exception>... exceptionsToHandle) {
         return retryAction(action::getAsInt, DEFAULT_RETRY_COUNT, exceptionsToHandle);
+    }
+
+    /**
+     * Retries an IntSupplier action with a delay between retries if it fails due to specified exceptions.
+     *
+     * <p>This method adds an interval between retries, and is useful for handling intermittent failures in IntSupplier actions.</p>
+     *
+     * <pre>{@code
+     * @FindBy(className = "item-class")
+     * List<WebElement> items;
+     *
+     * public int getItemCountWithRetry() {
+     *     return ActionHandler.retryIntAction(() -> items.size(), Duration.ofSeconds(2), NoSuchElementException.class, StaleElementReferenceException.class);
+     * }
+     * }</pre>
+     *
+     * @param action             The IntSupplier action to execute.
+     * @param interval           The {@link Duration} between retry attempts.
+     * @param exceptionsToHandle The exceptions that, if thrown, will trigger a retry of the action.
+     * @return The integer result of the action if it succeeds within the allowed retry attempts.
+     */
+    @SafeVarargs
+    public static int retryIntAction(IntSupplier action, Duration interval, Class<? extends Exception>... exceptionsToHandle) {
+        return retryAction(action::getAsInt, DEFAULT_RETRY_COUNT, interval, exceptionsToHandle);
     }
 
     /**
@@ -211,6 +384,29 @@ public class ActionHandler {
     }
 
     /**
+     * Retries an IntSupplier action with a specified number of retry attempts and a delay between retries if the action fails due to certain exceptions.
+     *
+     * <pre>{@code
+     * @FindBy(id = "dynamic-content-id")
+     * WebElement dynamicContent;
+     *
+     * public int calculateDynamicValueWithRetry() {
+     *     return ActionHandler.retryIntAction(() -> Integer.parseInt(dynamicContent.getText()), 3, Duration.ofSeconds(2), NoSuchElementException.class, StaleElementReferenceException.class);
+     * }
+     * }</pre>
+     *
+     * @param action             The IntSupplier action to execute.
+     * @param retryCount         The number of retry attempts before giving up.
+     * @param interval           The {@link Duration} between retry attempts.
+     * @param exceptionsToHandle The exceptions that, if thrown, will trigger a retry of the action.
+     * @return The integer result of the action if it succeeds within the specified retry attempts.
+     */
+    @SafeVarargs
+    public static int retryIntAction(IntSupplier action, int retryCount, Duration interval, Class<? extends Exception>... exceptionsToHandle) {
+        return retryAction(action::getAsInt, retryCount, interval, exceptionsToHandle);
+    }
+
+    /**
      * Retries a DoubleSupplier action up to the default retry count if it fails due to specified exceptions.
      *
      * <pre>{@code
@@ -229,6 +425,30 @@ public class ActionHandler {
     @SafeVarargs
     public static double retryDoubleAction(DoubleSupplier action, Class<? extends Exception>... exceptionsToHandle) {
         return retryAction(action::getAsDouble, DEFAULT_RETRY_COUNT, exceptionsToHandle);
+    }
+
+    /**
+     * Retries a DoubleSupplier action with a delay between retries if it fails due to specified exceptions.
+     *
+     * <p>This method adds an interval between retries, and is useful for handling intermittent failures in DoubleSupplier actions.</p>
+     *
+     * <pre>{@code
+     * @FindBy(css = "div.price")
+     * List<WebElement> prices;
+     *
+     * public double calculateAveragePriceWithRetry() {
+     *     return ActionHandler.retryDoubleAction(() -> prices.stream().mapToDouble(element -> Double.parseDouble(element.getText())).average().orElse(Double.NaN), Duration.ofSeconds(2), NoSuchElementException.class, StaleElementReferenceException.class);
+     * }
+     * }</pre>
+     *
+     * @param action             The DoubleSupplier action to execute.
+     * @param interval           The {@link Duration} between retry attempts.
+     * @param exceptionsToHandle The exceptions that, if thrown, will trigger a retry of the action.
+     * @return The double result of the action if it succeeds within the allowed retry attempts.
+     */
+    @SafeVarargs
+    public static double retryDoubleAction(DoubleSupplier action, Duration interval, Class<? extends Exception>... exceptionsToHandle) {
+        return retryAction(action::getAsDouble, DEFAULT_RETRY_COUNT, interval, exceptionsToHandle);
     }
 
     /**
@@ -254,6 +474,29 @@ public class ActionHandler {
     }
 
     /**
+     * Retries a DoubleSupplier action with a specified number of retry attempts and a delay between retries if the action fails due to certain exceptions.
+     *
+     * <pre>{@code
+     * @FindBy(id = "dynamic-value")
+     * WebElement dynamicValue;
+     *
+     * public double extractValueWithRetry() {
+     *     return ActionHandler.retryDoubleAction(() -> Double.parseDouble(dynamicValue.getAttribute("data-value")), 5, Duration.ofSeconds(2), NoSuchElementException.class, StaleElementReferenceException.class);
+     * }
+     * }</pre>
+     *
+     * @param action             The DoubleSupplier action to execute.
+     * @param retryCount         The number of retry attempts before giving up.
+     * @param interval           The {@link Duration} between retry attempts.
+     * @param exceptionsToHandle The exceptions that, if thrown, will trigger a retry of the action.
+     * @return The double result of the action if it succeeds within the specified retry attempts.
+     */
+    @SafeVarargs
+    public static double retryDoubleAction(DoubleSupplier action, int retryCount, Duration interval, Class<? extends Exception>... exceptionsToHandle) {
+        return retryAction(action::getAsDouble, retryCount, interval, exceptionsToHandle);
+    }
+
+    /**
      * Retries a Supplier&lt;String&gt; action up to the default retry count if it fails due to specified exceptions.
      *
      * <pre>{@code
@@ -272,6 +515,28 @@ public class ActionHandler {
     @SafeVarargs
     public static String retryStringAction(Supplier<String> action, Class<? extends Exception>... exceptionsToHandle) {
         return retryAction(action, DEFAULT_RETRY_COUNT, exceptionsToHandle);
+    }
+
+    /**
+     * Retries a Supplier&lt;String&gt; action with a delay between retries if it fails due to specified exceptions.
+     *
+     * <pre>{@code
+     * @FindBy(id = "dynamic-text")
+     * WebElement dynamicText;
+     *
+     * public String getTextWithRetry() {
+     *     return ActionHandler.retryStringAction(() -> dynamicText.getText(), Duration.ofSeconds(2), NoSuchElementException.class, StaleElementReferenceException.class);
+     * }
+     * }</pre>
+     *
+     * @param action             The Supplier&lt;String&gt; action to execute.
+     * @param interval           The {@link Duration} between retry attempts.
+     * @param exceptionsToHandle The exceptions that, if thrown, will trigger a retry of the action.
+     * @return The String result of the action if it succeeds within the allowed retry attempts.
+     */
+    @SafeVarargs
+    public static String retryStringAction(Supplier<String> action, Duration interval, Class<? extends Exception>... exceptionsToHandle) {
+        return retryAction(action, DEFAULT_RETRY_COUNT, interval, exceptionsToHandle);
     }
 
     /**
@@ -301,6 +566,36 @@ public class ActionHandler {
     @SafeVarargs
     public static String retryStringAction(Supplier<String> action, int retryCount, Class<? extends Exception>... exceptionsToHandle) {
         return retryAction(action, retryCount, exceptionsToHandle);
+    }
+
+    /**
+     * Retries a Supplier&lt;String&gt; action with a specified number of retry attempts and a delay between retries if the action fails due to certain exceptions.
+     *
+     * <pre>{@code
+     * @FindBy(id = "conditional-text")
+     * WebElement conditionalText;
+     *
+     * public String getConditionalTextWithRetry() {
+     *     return ActionHandler.retryStringAction(() -> {
+     *         String text = conditionalText.getText();
+     *         if (text.equals("Expected Value")) {
+     *             return text;
+     *         } else {
+     *             throw new StaleElementReferenceException("Text not as expected");
+     *         }
+     *     }, 3, Duration.ofSeconds(2), NoSuchElementException.class, StaleElementReferenceException.class);
+     * }
+     * }</pre>
+     *
+     * @param action             The Supplier&lt;String&gt; action to execute.
+     * @param retryCount         The number of retry attempts before giving up.
+     * @param interval           The {@link Duration} between retry attempts.
+     * @param exceptionsToHandle The exceptions that, if thrown, will trigger a retry of the action.
+     * @return The String result of the action if it succeeds within the specified retry attempts.
+     */
+    @SafeVarargs
+    public static String retryStringAction(Supplier<String> action, int retryCount, Duration interval, Class<? extends Exception>... exceptionsToHandle) {
+        return retryAction(action, retryCount, interval, exceptionsToHandle);
     }
 
     /**
