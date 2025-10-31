@@ -36,7 +36,7 @@ public class WebDriverManager implements Driver<WebDriver> {
      * @param options     Browser-specific options
      * @return The initialized WebDriver instance
      */
-    public WebDriver getDriver(String browserType, Object options) {
+    public WebDriver getDriver(Browser browserType, Object options) {
         webDriver = WebDriverFactory.createWebDriver(browserType, options);  // Delegate to WebDriverFactory
         return webDriver;
     }

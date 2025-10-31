@@ -28,11 +28,11 @@ class WebDriverFactory {
      * @return the initialized WebDriver.
      * @throws InvalidBrowserOptionsException if the wrong options are passed.
      */
-    public static WebDriver createWebDriver(String browser, Object options) {
+    public static WebDriver createWebDriver(Browser browser, Object options) {
         WebDriver driver;
 
-        switch (browser.toLowerCase()) {
-            case "chrome":
+        switch (browser) {
+            case CHROME:
                 if (options instanceof ChromeOptions chromeOptions) {
                     driver = new ChromeDriver(chromeOptions);
                 } else {
@@ -40,7 +40,7 @@ class WebDriverFactory {
                 }
                 break;
 
-            case "firefox":
+            case FIREFOX:
                 if (options instanceof FirefoxOptions firefoxOptions) {
                     driver = new FirefoxDriver(firefoxOptions);
                 } else {
@@ -48,7 +48,7 @@ class WebDriverFactory {
                 }
                 break;
 
-            case "edge":
+            case EDGE:
                 if (options instanceof EdgeOptions edgeOptions) {
                     driver = new EdgeDriver(edgeOptions);
                 } else {
@@ -56,7 +56,7 @@ class WebDriverFactory {
                 }
                 break;
 
-            case "ie":
+            case INTERNET_EXPLORER:
                 if (options instanceof InternetExplorerOptions ieOptions) {
                     driver = new InternetExplorerDriver(ieOptions);
                 } else {
@@ -64,7 +64,7 @@ class WebDriverFactory {
                 }
                 break;
 
-            case "safari":
+            case SAFARI:
                 if (options instanceof SafariOptions safariOptions) {
                     driver = new SafariDriver(safariOptions);
                 } else {

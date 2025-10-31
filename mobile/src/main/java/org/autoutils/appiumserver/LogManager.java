@@ -1,4 +1,4 @@
-package org.autoutils.mobile.appiumserver;
+package org.autoutils.appiumserver;
 
 import java.io.File;
 import java.text.SimpleDateFormat;

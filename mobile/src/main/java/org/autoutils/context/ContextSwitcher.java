@@ -1,9 +1,9 @@
-package org.autoutils.mobile.context;
+package org.autoutils.context;
 
 import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.remote.SupportsContextSwitching;
-import org.autoutils.mobile.context.exception.ContextNotFoundException;
-import org.autoutils.mobile.context.exception.ContextSwitchingUnsupportedException;
+import org.autoutils.context.exception.ContextNotFoundException;
+import org.autoutils.context.exception.ContextSwitchingUnsupportedException;
 import org.autoutils.wait.WaitForCondition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,4 +1,4 @@
-package org.autoutils.mobile.appiumserver.exception;
+package org.autoutils.appiumserver.exception;
 
 /**
  * Exception thrown when no available port is found within the specified range.

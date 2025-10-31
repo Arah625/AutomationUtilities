@@ -1,4 +1,4 @@
-package org.autoutils.mobile.context.exception;
+package org.autoutils.context.exception;
 
 /**
  * Exception thrown when the requested context is not found.

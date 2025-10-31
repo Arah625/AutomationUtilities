@@ -1,9 +1,9 @@
-package org.autoutils.mobile.appiumserver;
+package org.autoutils.appiumserver;
 
 import io.appium.java_client.service.local.AppiumDriverLocalService;
 import io.appium.java_client.service.local.AppiumServiceBuilder;
 import io.appium.java_client.service.local.flags.GeneralServerFlag;
-import org.autoutils.mobile.appiumserver.exception.NoAvailablePortException;
+import org.autoutils.appiumserver.exception.NoAvailablePortException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -167,7 +167,7 @@ public class AppiumServerManager {
      */
     private List<String[]> getDefaultArguments() {
         return List.of(
-                new String[]{GeneralServerFlag.ALLOW_INSECURE.getArgument(), "chromedriver_autodownload"},
+                new String[]{GeneralServerFlag.ALLOW_INSECURE.getArgument(), "*:chromedriver_autodownload"},
                 new String[]{GeneralServerFlag.LOG_TIMESTAMP.getArgument()},
                 new String[]{GeneralServerFlag.LOG_LEVEL.getArgument(), "debug"},
                 new String[]{GeneralServerFlag.LOCAL_TIMEZONE.getArgument()}
