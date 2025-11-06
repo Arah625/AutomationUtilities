@@ -1,62 +1,53 @@
 package org.autoutils.driver.android.manager;
 
 import io.appium.java_client.android.AndroidDriver;
-import io.appium.java_client.android.options.UiAutomator2Options;
+import org.autoutils.device.DeviceInfo;
+import org.autoutils.device.DevicePool;
 import org.autoutils.driver.DriverManager;
 import org.autoutils.driver.android.factory.AndroidDriverFactory;
 
-import java.net.URL;
-
 public class AndroidDriverManager implements DriverManager<AndroidDriver> {
 
-    private final AndroidDriverFactory androidDriverFactory;
-    private final UiAutomator2Options uiAutomator2Options;
-    private final URL appiumServerUrl;
-
-    private AndroidDriver androidDriver;
-
-    public AndroidDriverManager(AndroidDriverFactory androidDriverFactory,
-                                UiAutomator2Options uiAutomator2Options,
-                                URL appiumServerUrl) {
-        this.androidDriverFactory = androidDriverFactory;
-        this.uiAutomator2Options = uiAutomator2Options;
-        this.appiumServerUrl = appiumServerUrl;
-    }
+    private final ThreadLocal<AndroidDriver> driverThread = new ThreadLocal<>();
+    private final ThreadLocal<DeviceInfo> deviceThread = new ThreadLocal<>();
 
     @Override
     public AndroidDriver start() {
-        if (androidDriver == null) {
-            androidDriver = androidDriverFactory.create(uiAutomator2Options, appiumServerUrl);
+        if (driverThread.get() == null) {
+            DeviceInfo device = DevicePool.acquireFreeDevice();
+            AndroidDriver driver = new AndroidDriverFactory().createForDevice(device, AndroidDriverFactory.resolveUrl());
+            driverThread.set(driver);
+            deviceThread.set(device);
         }
-        return androidDriver;
+        return driverThread.get();
     }
 
     @Override
     public AndroidDriver get() {
-        if (androidDriver == null) {
-            throw new IllegalStateException("AndroidDriver not initialized. Call start() first.");
-        }
-        return androidDriver;
+        return driverThread.get();
     }
 
     @Override
     public void set(AndroidDriver driver) {
-        this.androidDriver = driver;
+        driverThread.set(driver);
     }
 
     @Override
     public void quit() {
-        if (androidDriver != null) {
-            try {
-                androidDriver.quit();
-            } finally {
-                androidDriver = null;
-            }
+        AndroidDriver driver = driverThread.get();
+        if (driver != null) {
+            driver.quit();
+            driverThread.remove();
+        }
+        DeviceInfo device = deviceThread.get();
+        if (device != null) {
+            DevicePool.releaseDevice(device);
+            deviceThread.remove();
         }
     }
 
     @Override
     public boolean isRunning() {
-        return androidDriver != null && androidDriver.getSessionId() != null;
+        return driverThread.get() != null;
     }
 }

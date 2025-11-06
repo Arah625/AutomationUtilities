@@ -1,62 +1,53 @@
 package org.autoutils.driver.ios.manager;
 
 import io.appium.java_client.ios.IOSDriver;
-import io.appium.java_client.ios.options.XCUITestOptions;
+import org.autoutils.device.DeviceInfo;
+import org.autoutils.device.DevicePool;
 import org.autoutils.driver.DriverManager;
 import org.autoutils.driver.ios.factory.IOSDriverFactory;
 
-import java.net.URL;
-
 public class IOSDriverManager implements DriverManager<IOSDriver> {
 
-    private final IOSDriverFactory iosDriverFactory;
-    private final XCUITestOptions xcuiTestOptions;
-    private final URL appiumServerUrl;
-
-    private IOSDriver iosDriver;
-
-    public IOSDriverManager(IOSDriverFactory iosDriverFactory,
-                            XCUITestOptions xcuiTestOptions,
-                            URL appiumServerUrl) {
-        this.iosDriverFactory = iosDriverFactory;
-        this.xcuiTestOptions = xcuiTestOptions;
-        this.appiumServerUrl = appiumServerUrl;
-    }
+    private final ThreadLocal<IOSDriver> driverThread = new ThreadLocal<>();
+    private final ThreadLocal<DeviceInfo> deviceThread = new ThreadLocal<>();
 
     @Override
     public IOSDriver start() {
-        if (iosDriver == null) {
-            iosDriver = iosDriverFactory.create(xcuiTestOptions, appiumServerUrl);
+        if (driverThread.get() == null) {
+            DeviceInfo device = DevicePool.acquireFreeDevice();
+            IOSDriver driver = new IOSDriverFactory().createForDevice(device, IOSDriverFactory.resolveUrl());
+            driverThread.set(driver);
+            deviceThread.set(device);
         }
-        return iosDriver;
+        return driverThread.get();
     }
 
     @Override
     public IOSDriver get() {
-        if (iosDriver == null) {
-            throw new IllegalStateException("IOSDriver not initialized. Call start() first.");
-        }
-        return iosDriver;
+        return driverThread.get();
     }
 
     @Override
     public void set(IOSDriver driver) {
-        this.iosDriver = driver;
+        driverThread.set(driver);
     }
 
     @Override
     public void quit() {
-        if (iosDriver != null) {
-            try {
-                iosDriver.quit();
-            } finally {
-                iosDriver = null;
-            }
+        IOSDriver driver = driverThread.get();
+        if (driver != null) {
+            driver.quit();
+            driverThread.remove();
+        }
+        DeviceInfo device = deviceThread.get();
+        if (device != null) {
+            DevicePool.releaseDevice(device);
+            deviceThread.remove();
         }
     }
 
     @Override
     public boolean isRunning() {
-        return iosDriver != null && iosDriver.getSessionId() != null;
+        return driverThread.get() != null;
     }
 }
