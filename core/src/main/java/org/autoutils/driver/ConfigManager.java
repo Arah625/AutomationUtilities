@@ -29,7 +29,16 @@ public class ConfigManager {
      * @return The platform name (android, ios, web, etc.), or null if not found.
      */
     public static String getPlatform() {
-        return properties.getProperty("platform", "default-platform");  // Optional default value if platform is not set
+        return properties.getProperty("platform", "android");  // Optional default value if platform is not set
+    }
+
+    /**
+     * Get device name from the properties file.
+     *
+     * @return The device name (emulator-5556, emulator-5558, etc.), or null if not found.
+     */
+    public static String getDevice() {
+        return properties.getProperty("device");
     }
 
     /**

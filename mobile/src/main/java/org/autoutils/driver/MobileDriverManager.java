@@ -3,8 +3,10 @@ package org.autoutils.driver;
 import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.android.options.UiAutomator2Options;
 import io.appium.java_client.ios.options.XCUITestOptions;
+import org.autoutils.driver.android.factory.AndroidDriverFactory;
 import org.autoutils.driver.exception.InvalidMobilePlatformException;
 import org.autoutils.driver.exception.UnknownPlatformException;
+import org.autoutils.driver.ios.factory.IOSDriverFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +27,7 @@ public class MobileDriverManager {
      * @return The initialized Android AppiumDriver instance.
      */
     public static AppiumDriver getAndroidDriver(UiAutomator2Options options, URL appiumServerUrl) {
-        AppiumDriver driver = AndroidDriverFactory.getInstance().getDriver(options, appiumServerUrl);
+        AppiumDriver driver = new AndroidDriverFactory().create(options, appiumServerUrl);
         DriverSessionManager.registerDriver(driver);
         LOGGER.debug("Android driver initialized successfully.");
         return driver;
@@ -39,7 +41,7 @@ public class MobileDriverManager {
      * @return The initialized iOS AppiumDriver instance.
      */
     public static AppiumDriver getIOSDriver(XCUITestOptions options, URL appiumServerUrl) {
-        AppiumDriver driver = IOSDriverFactory.getInstance().getDriver(options, appiumServerUrl);
+        AppiumDriver driver = new IOSDriverFactory().create(options, appiumServerUrl);
         DriverSessionManager.registerDriver(driver);
         LOGGER.debug("iOS driver initialized successfully.");
         return driver;
@@ -76,7 +78,6 @@ public class MobileDriverManager {
      */
     public static AppiumDriver getMobileDriver(UiAutomator2Options androidOptions, XCUITestOptions iosOptions, URL appiumServerUrl) {
         String platform = ConfigManager.getPlatform();  // Load platform from configuration
-        validatePlatform(platform);  // Validate platform string
         return getMobileDriver(platform, androidOptions, iosOptions, appiumServerUrl);
     }
 
